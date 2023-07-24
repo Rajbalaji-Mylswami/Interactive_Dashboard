@@ -1,23 +1,44 @@
-# Tips Dataset Dashboard
+**Tips Dataset Dashboard**
 
-This is a dashboard built using Python, Dash, Pandas, Seaborn, and Plotly to explore and visualize the "tips" dataset. The dashboard allows you to interactively analyze different aspects of the dataset, such as the relationship between total bill amount and tip amount, comparison of tip amounts based on various filters, and more.
+This repository contains a web-based dashboard that visualizes data from the "tips" dataset using Streamlit. The dataset contains information about restaurant tips, including total bill amount, tip amount, day of the week, time of day (Lunch or Dinner), and the size of the group.
 
-## Features
+**Installation:**
 
-- Scatter Plot: Visualizes the relationship between total bill amount and tip amount. You can filter the data points based on selected days of the week.
+To run the dashboard, you need to have Python and the required libraries installed.
 
-- Pie Chart: Compares the number of smokers and non-smokers in the dataset. You can filter the chart based on lunch or dinner time.
+**How to Use:**
 
-- Size vs. Tip Amount Comparison: Displays a bar chart comparing the tip amounts based on the group size. You can choose between male and female to update the chart.
+1. Clone the repository to your local machine:
 
-- Filtered Scatter Plot: Shows a scatter plot similar to the first section but with additional filtering options. You can select a range of total bill amounts and filter by lunch or dinner time.
+2. Run the Streamlit app:
 
-## Usage
+The dashboard will be available in your web browser at `http://localhost:8501`.
 
--Run the dashboard locally
+**Dashboard Features:**
 
--Use the provided filters and interact with the visualizations to explore the dataset.
+The dashboard provides the following interactive visualizations and filters:
 
-## Contributing
+1. **Scatter Plot:**
 
-Contributions are welcome! If you find any issues or have suggestions for improvements, please create a new issue or submit a pull request.
+   - Select one or more days of the week to filter the data.
+   - The scatter plot displays the relationship between the total bill amount and the tip amount for the selected days.
+
+2. **Pie Chart:**
+
+   - Select one or more time periods (Lunch or Dinner) to filter the data.
+   - The pie chart shows the proportion of smokers and non-smokers based on the selected time periods.
+
+3. **Bar Chart:**
+
+   - Select the gender (Male or Female) to filter the data.
+   - The bar chart displays the comparison between the group size and the tip amount for the selected gender.
+
+4. **Filtered Scatter Plot:**
+
+   - Use the range slider to select a range of total bill amounts.
+   - Select one or more time periods (Lunch or Dinner) to filter the data.
+   - The filtered scatter plot shows the relationship between the total bill amount and the tip amount based on the selected filters.
+
+**Note:**
+
+If you encounter any issues or have questions, feel free to raise an issue in this repository. Happy exploring!
