@@ -1,7 +1,6 @@
 import pandas as pd
 import seaborn as sns
-import dash
-from dash import dcc, html, Input, Output, State
+import streamlit as st
 import plotly.graph_objs as go
 
 # Load the tips dataset into a Pandas DataFrame
@@ -20,91 +19,8 @@ df['tip'] = pd.to_numeric(df['tip'], errors='coerce')
 # Convert the 'size' column to integer
 df['size'] = df['size'].astype(int)
 
-# Create the Dash app
-app = dash.Dash(__name__)
-
-# Define the layout of the dashboard
-app.layout = html.Div(
-    children=[
-        html.H1("Tips Dataset Dashboard"),
-        html.Div(
-            children=[
-                dcc.Markdown("#### Select Days:"),
-                dcc.Checklist(
-                    id="day-filter",
-                    options=[
-                        {'label': 'Thur', 'value': 'Thur'},
-                        {'label': 'Fri', 'value': 'Fri'},
-                        {'label': 'Sat', 'value': 'Sat'},
-                        {'label': 'Sun', 'value': 'Sun'}
-                    ],
-                    value=['Thur', 'Fri', 'Sat', 'Sun']
-                ),
-                dcc.Graph(id="scatter-plot"),
-            ],
-            style={"width": "100%", "display": "inline-block", "margin-bottom": "20px"},
-        ),
-        html.Div(
-            children=[
-                dcc.Markdown("#### Select Time:"),
-                dcc.Checklist(
-                    id="time-filter",
-                    options=[
-                        {'label': 'Lunch', 'value': 'Lunch'},
-                        {'label': 'Dinner', 'value': 'Dinner'}
-                    ],
-                    value=['Lunch', 'Dinner']
-                ),
-                dcc.Graph(id="pie-chart"),
-            ],
-            style={"width": "100%", "display": "inline-block", "margin-bottom": "20px"},
-        ),
-        html.Div(
-            children=[
-                dcc.RadioItems(
-                    id="sex-filter",
-                    options=[
-                        {'label': 'Male', 'value': 'Male'},
-                        {'label': 'Female', 'value': 'Female'}
-                    ],
-                    value='Female',
-                    labelStyle={'display': 'inline-block'}
-                ),
-                dcc.Graph(id="size-tip-comparison"),
-            ],
-            style={"width": "100%", "display": "inline-block", "margin-bottom": "20px"},
-        ),
-        html.Div(
-            children=[
-                dcc.RangeSlider(
-                    id="total-bill-filter",
-                    min=df['total_bill'].min(),
-                    max=df['total_bill'].max(),
-                    step=1,
-                    marks={i: str(i) for i in range(int(df['total_bill'].min()), int(df['total_bill'].max()) + 1)},
-                    value=[df['total_bill'].min(), df['total_bill'].max()]
-                ),
-                dcc.Checklist(
-                    id="time-filter-2",
-                    options=[
-                        {'label': 'Lunch', 'value': 'Lunch'},
-                        {'label': 'Dinner', 'value': 'Dinner'}
-                    ],
-                    value=['Lunch', 'Dinner']
-                ),
-                dcc.Graph(id="filtered-scatter-plot"),
-            ],
-            style={"width": "100%", "display": "inline-block", "margin-bottom": "20px"},
-        ),
-    ]
-)
-
-
-@app.callback(
-    Output("scatter-plot", "figure"),
-    Input("day-filter", "value")
-)
-def update_scatter_plot(selected_days):
+# Define a function for the scatter plot
+def plot_scatter(selected_days):
     filtered_df = df[df['day'].isin(selected_days)]
     scatter_plot_figure = go.Figure(
         data=[
@@ -122,14 +38,10 @@ def update_scatter_plot(selected_days):
             hovermode="closest",
         ),
     )
-    return scatter_plot_figure
+    st.plotly_chart(scatter_plot_figure)
 
-
-@app.callback(
-    Output("pie-chart", "figure"),
-    [Input("time-filter", "value")]
-)
-def update_pie_chart(selected_time):
+# Define a function for the pie chart
+def plot_pie(selected_time):
     filtered_df = df[df['time'].isin(selected_time)]
     pie_chart_figure = go.Figure(
         data=[
@@ -144,14 +56,10 @@ def update_pie_chart(selected_time):
             title="Smokers vs Non-smokers",
         )
     )
-    return pie_chart_figure
+    st.plotly_chart(pie_chart_figure)
 
-
-@app.callback(
-    Output("size-tip-comparison", "figure"),
-    [Input("sex-filter", "value")]
-)
-def update_size_tip_comparison(selected_sex):
+# Define a function for the bar chart
+def plot_bar(selected_sex):
     filtered_df = df[df['sex'] == selected_sex]
     size_tip_figure = go.Figure(
         data=[
@@ -163,15 +71,10 @@ def update_size_tip_comparison(selected_sex):
             yaxis=dict(title="Tip Amount"),
         )
     )
-    return size_tip_figure
+    st.plotly_chart(size_tip_figure)
 
-
-@app.callback(
-    Output("filtered-scatter-plot", "figure"),
-    [Input("total-bill-filter", "value"),
-     Input("time-filter-2", "value")]
-)
-def update_filtered_scatter_plot(total_bill_range, selected_time):
+# Define a function for the filtered scatter plot
+def plot_filtered_scatter(total_bill_range, selected_time):
     filtered_df = df[(df["total_bill"].between(total_bill_range[0], total_bill_range[1])) & (df["time"].isin(selected_time))]
     filtered_scatter_plot_figure = go.Figure(
         data=[
@@ -189,10 +92,25 @@ def update_filtered_scatter_plot(total_bill_range, selected_time):
             hovermode="closest",
         ),
     )
-    return filtered_scatter_plot_figure
+    st.plotly_chart(filtered_scatter_plot_figure)
 
+# Create the Streamlit app
+def main():
+    st.title("Tips Dataset Dashboard")
+    
+    selected_days = st.multiselect("Select Days:", df['day'].unique().tolist(), default=df['day'].unique().tolist(), key="days_multiselect")
+    plot_scatter(selected_days)
+    
+    selected_time = st.multiselect("Select Time:", df['time'].unique().tolist(), default=df['time'].unique().tolist(), key="time_multiselect")
+    plot_pie(selected_time)
+    
+    selected_sex = st.radio("Select Sex:", df['sex'].unique().tolist(), key="sex_radio")
+    plot_bar(selected_sex)
+    
+    total_bill_range = st.slider("Select Total Bill Range:", float(df['total_bill'].min()), float(df['total_bill'].max()), 
+                                 (float(df['total_bill'].min()), float(df['total_bill'].max())), key="total_bill_range_slider")
+    selected_time_2 = st.multiselect("Select Time:", df['time'].unique().tolist(), default=df['time'].unique().tolist(), key="time_multiselect_2")
+    plot_filtered_scatter(total_bill_range, selected_time_2)
 
-# Run the app
 if __name__ == "__main__":
-    app.run_server(port=8051)
-
+    main()
